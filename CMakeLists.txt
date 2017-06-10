@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 3.8)
+
+project(uvrpn)
+
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/etc/cmake ${CMAKE_MODULE_PATH})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE PATH "Executables go here")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE PATH "Libraries go here")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE PATH "Standalone DLLs go here")
+
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+find_package(VRPN REQUIRED)
+
+if (VRPN_FOUND)
+	add_subdirectory(src)
+endif()
