@@ -21,6 +21,14 @@ public class Tracking : MonoBehaviour {
 	void Update () {
 
 		tracker.Update ();
-		
+
+		if (tracker.GetSensorCount () > 0) {
+
+			uvrpn.Sensor s = tracker.GetSensor (0);
+
+			Debug.Log ("Pos: " + s.posX + " " + s.posY + " " + s.posZ);
+			Debug.Log ("Rot: " + s.quatW + " " + s.quatX + " " + s.quatY + " " + s.quatZ);
+
+		}
 	}
 }

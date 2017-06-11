@@ -13,8 +13,8 @@ void VRPN_Remote_Callback(void *userdata, const vrpn_TRACKERCB t);
 
 
 struct VRPN_Sensor {
-    quad_t _rotation;
-    double _position;
+    vrpn_float64 _rotation[4];
+    vrpn_float32 _position[3];
 };
 
 struct VRPN_Remote {
@@ -22,6 +22,8 @@ struct VRPN_Remote {
     vrpn_Tracker_Remote* _remote;
     bool _hasUpdates;
     std::vector<VRPN_Sensor> _sensors;
+
+    int _updateCount = 0;
 
     VRPN_Remote(const char* url)
         : _remote(new vrpn_Tracker_Remote(url))
@@ -31,18 +33,45 @@ struct VRPN_Remote {
     }
 
     void update() {
-        while(_hasUpdates) {
+
+        do {
             _hasUpdates = false;
             _remote->mainloop();
+        } while(_hasUpdates);
+    }
+
+    void get(VRPN_Sensor* s,size_t num) {
+        if (s && num < _sensors.size()) {
+            s->_position[0] = _sensors[num]._position[0];
+            s->_position[1] = _sensors[num]._position[1];
+            s->_position[2] = _sensors[num]._position[2];
+
+            s->_rotation[0] = _sensors[num]._rotation[0];
+            s->_rotation[1] = _sensors[num]._rotation[1];
+            s->_rotation[2] = _sensors[num]._rotation[2];
+            s->_rotation[3] = _sensors[num]._rotation[3];
         }
     }
 
     void set(const vrpn_TRACKERCB t) {
+
+        _updateCount++;
+
         if ((t.sensor + 1) >= _sensors.size()) {
-            _sensors.resize(t.sensor);
+            _sensors.resize(t.sensor + 1);
         }
 
         VRPN_Sensor &sensor = _sensors[t.sensor];
+        memcpy(sensor._position,t.pos,sizeof(vrpn_float32) * 3);
+        memcpy(sensor._rotation,t.quat,sizeof(vrpn_float64) * 4);
+    }
+
+    size_t sensorCount() const {
+        return _sensors.size();
+    }
+
+    int updateCount() const {
+        return _updateCount;
     }
 
     ~VRPN_Remote() {
@@ -65,8 +94,26 @@ void uvrpn_tracker_update(void* tracker) {
 }
 
 UVRPN_PINVOKE_EXPORT
-void uvrpn_tracker_destroy(void** tracker) {
-    VRPN_Remote* t = static_cast<VRPN_Remote*>(*tracker);
+void uvrpn_tracker_get_sensor(void* tracker,VRPN_Sensor *s,size_t num) {
+    VRPN_Remote* t = static_cast<VRPN_Remote*>(tracker);
+    t->get(s,num);
+}
+
+UVRPN_PINVOKE_EXPORT
+size_t uvrpn_tracker_get_sensor_count(void* tracker) {
+    VRPN_Remote* t = static_cast<VRPN_Remote*>(tracker);
+    return t->sensorCount();
+}
+
+UVRPN_PINVOKE_EXPORT
+int uvrpn_tracker_get_update_count(void* tracker) {
+    VRPN_Remote* t = static_cast<VRPN_Remote*>(tracker);
+    return t->updateCount();
+}
+
+UVRPN_PINVOKE_EXPORT
+void uvrpn_tracker_destroy(void* tracker) {
+    VRPN_Remote* t = static_cast<VRPN_Remote*>(tracker);
     if (t) {
         delete t;
         t = 0L;
@@ -84,7 +131,4 @@ void VRPN_Remote_Callback(void *userdata, const vrpn_TRACKERCB t)
         r->_hasUpdates = true;
         r->set(t);
     }
-
-
-
 }
