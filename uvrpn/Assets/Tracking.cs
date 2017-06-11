@@ -1,4 +1,13 @@
-﻿using System.Collections;
+﻿/**
+ * uvrpn - a minimal wrapper for VRPN in Unity
+ * 
+ * Copyright (c) 2013-2017 Hartmut Seichter
+ * 
+ * This file is part of uvrpn and licensed under the terms of the MIT License
+ * 
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,24 +19,25 @@ public class Tracking : MonoBehaviour {
 
 	public string trackerURL;
 
-	// Use this for initialization
 	void Start () {
-
+		// on start launch the tracker
 		tracker = new uvrpn.Tracker (trackerURL);
 		
 	}
-	
-	// Update is called once per frame
+
 	void Update () {
 
+		// the tracker needs some update
 		tracker.Update ();
 
-		if (tracker.GetSensorCount () > 0) {
+		// only if we have the sensors ready, update data
+		for (int i = 0; i < tracker.GetSensorCount ();i++) {
 
-			uvrpn.Sensor s = tracker.GetSensor (0);
+			// retrieve
+			uvrpn.Sensor s = tracker.GetSensor (i);
 
-			Debug.Log ("Pos: " + s.posX + " " + s.posY + " " + s.posZ);
-			Debug.Log ("Rot: " + s.quatW + " " + s.quatX + " " + s.quatY + " " + s.quatZ);
+			Debug.Log ("Sensor" + i + " Pos: " + s.posX + " " + s.posY + " " + s.posZ);
+			Debug.Log ("Sensor" + i + " Rot: " + s.quatW + " " + s.quatX + " " + s.quatY + " " + s.quatZ);
 
 		}
 	}
