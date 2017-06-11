@@ -1,16 +1,16 @@
-
 #include "vrpn_Configure.h"
 #include "vrpn_Analog.h"
 #include "vrpn_Tracker.h"
 
+#include <memory>
 #include <vector>
 
 #include "uvrpn_exports.hpp"
 
+
 struct VRPN_Remote;
 
 void VRPN_Remote_Callback(void *userdata, const vrpn_TRACKERCB t);
-
 
 struct VRPN_Sensor {
     vrpn_float64 _rotation[4];
@@ -19,7 +19,8 @@ struct VRPN_Sensor {
 
 struct VRPN_Remote {
 
-    vrpn_Tracker_Remote* _remote;
+    std::unique_ptr<vrpn_Tracker_Remote> _remote;
+
     bool _hasUpdates;
     std::vector<VRPN_Sensor> _sensors;
 
@@ -75,7 +76,7 @@ struct VRPN_Remote {
     }
 
     ~VRPN_Remote() {
-        delete _remote;
+        _remote->unregister_change_handler(this, VRPN_Remote_Callback);
     }
 };
 
