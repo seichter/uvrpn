@@ -18,7 +18,7 @@ namespace uvrpn {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct Sensor
 	{
-		public float posX, posY, posZ;
+		public double posX, posY, posZ;
 		public double quatX,quatY,quatZ,quatW;
 
 	}

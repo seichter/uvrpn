@@ -13,8 +13,8 @@ struct VRPN_Remote;
 void VRPN_Remote_Callback(void *userdata, const vrpn_TRACKERCB t);
 
 struct VRPN_Sensor {
+    vrpn_float64 _position[3];
     vrpn_float64 _rotation[4];
-    vrpn_float32 _position[3];
 };
 
 struct VRPN_Remote {
@@ -63,8 +63,18 @@ struct VRPN_Remote {
         }
 
         VRPN_Sensor &sensor = _sensors[t.sensor];
-        memcpy(sensor._position,t.pos,sizeof(vrpn_float32) * 3);
-        memcpy(sensor._rotation,t.quat,sizeof(vrpn_float64) * 4);
+
+        // copy internal data
+        // position in order x,y,z
+        sensor._position[0] = t.pos[0];
+        sensor._position[1] = t.pos[1];
+        sensor._position[2] = t.pos[2];
+
+        // rotation as quaternion in order x,y,z,w
+        sensor._rotation[0] = t.quat[0];
+        sensor._rotation[1] = t.quat[1];
+        sensor._rotation[2] = t.quat[2];
+        sensor._rotation[3] = t.quat[3];
     }
 
     size_t sensorCount() const {

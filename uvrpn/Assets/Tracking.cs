@@ -18,10 +18,24 @@ public class Tracking : MonoBehaviour {
 	private uvrpn.Tracker tracker = null;
 
 	public string trackerURL;
+	public int useSensorNumber = 0;
+
+	public bool applyTranslation = true;
+	public bool applyRotation = true;
+
+	public float amplification = 10;
+
+	public Quaternion globalRotation = Quaternion.AngleAxis (180, Vector3.up);
+	private bool isCamera = false;
+
+	private Matrix4x4 flip = Matrix4x4.Scale(new Vector3(1,1,-1));
 
 	void Start () {
 		// on start launch the tracker
 		tracker = new uvrpn.Tracker (trackerURL);
+
+		// flag this as a camera
+		isCamera = (GetComponent<Camera> () != null);
 		
 	}
 
@@ -36,18 +50,22 @@ public class Tracking : MonoBehaviour {
 			// retrieve
 			uvrpn.Sensor s = tracker.GetSensor (i);
 
-//			Debug.Log ("Sensor" + i + " Pos: " + s.posX + " " + s.posY + " " + s.posZ);
-//			Debug.Log ("Sensor" + i + " Rot: " + s.quatW + " " + s.quatX + " " + s.quatY + " " + s.quatZ);
+			// update
+			if (i == useSensorNumber) {
 
-			if (i == 0) {
-
-				Vector3 pos = new Vector3 (s.posX, s.posY, s.posZ);
+				// get actual data
+				Vector3 pos = new Vector3 ((float)s.posX, (float)s.posY, (float)s.posZ) * amplification;
 				Quaternion q = new Quaternion ((float)s.quatX, (float)s.quatY, (float)s.quatZ, (float)s.quatW);
 
-
-				this.transform.localPosition = pos;
-				this.transform.localRotation = q;
-
+				// copy translation
+				if (applyTranslation) {
+					this.transform.localPosition = flip * pos;
+				}
+				
+				// copy rotation
+				if (applyRotation) {
+					this.transform.localRotation = new Quaternion(q.x,q.y,-q.z,-q.w);
+				}
 			}
 		}
 	}
