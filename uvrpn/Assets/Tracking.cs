@@ -36,9 +36,19 @@ public class Tracking : MonoBehaviour {
 			// retrieve
 			uvrpn.Sensor s = tracker.GetSensor (i);
 
-			Debug.Log ("Sensor" + i + " Pos: " + s.posX + " " + s.posY + " " + s.posZ);
-			Debug.Log ("Sensor" + i + " Rot: " + s.quatW + " " + s.quatX + " " + s.quatY + " " + s.quatZ);
+//			Debug.Log ("Sensor" + i + " Pos: " + s.posX + " " + s.posY + " " + s.posZ);
+//			Debug.Log ("Sensor" + i + " Rot: " + s.quatW + " " + s.quatX + " " + s.quatY + " " + s.quatZ);
 
+			if (i == 0) {
+
+				Vector3 pos = new Vector3 (s.posX, s.posY, s.posZ);
+				Quaternion q = new Quaternion ((float)s.quatX, (float)s.quatY, (float)s.quatZ, (float)s.quatW);
+
+
+				this.transform.localPosition = pos;
+				this.transform.localRotation = q;
+
+			}
 		}
 	}
 }
