@@ -25,18 +25,13 @@ public class Tracking : MonoBehaviour {
 
 	public float amplification = 10;
 
-	public Quaternion globalRotation = Quaternion.AngleAxis (180, Vector3.up);
-	private bool isCamera = false;
+	public bool mute = false;
 
-	private Matrix4x4 flip = Matrix4x4.Scale(new Vector3(1,1,-1));
+	public Matrix4x4 flip = Matrix4x4.Scale(new Vector3(-1,1,-1));
 
 	void Start () {
 		// on start launch the tracker
 		tracker = new uvrpn.Tracker (trackerURL);
-
-		// flag this as a camera
-		isCamera = (GetComponent<Camera> () != null);
-		
 	}
 
 	void Update () {
@@ -51,7 +46,7 @@ public class Tracking : MonoBehaviour {
 			uvrpn.Sensor s = tracker.GetSensor (i);
 
 			// update
-			if (i == useSensorNumber) {
+			if (i == useSensorNumber && ! mute) {
 
 				// get actual data
 				Vector3 pos = new Vector3 ((float)s.posX, (float)s.posY, (float)s.posZ) * amplification;
@@ -59,12 +54,17 @@ public class Tracking : MonoBehaviour {
 
 				// copy translation
 				if (applyTranslation) {
+					// only apply rotation with flip from VRPN
 					this.transform.localPosition = flip * pos;
 				}
 				
 				// copy rotation
 				if (applyRotation) {
-					this.transform.localRotation = new Quaternion(q.x,q.y,-q.z,-q.w);
+
+					// apply VRPN flip to rotation
+					Matrix4x4 rotationMatrix = flip * Matrix4x4.TRS (Vector3.zero, q, Vector3.one);
+
+					this.transform.localRotation = Quaternion.LookRotation (rotationMatrix.GetColumn(2),rotationMatrix.GetColumn(1));
 				}
 			}
 		}
