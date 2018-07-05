@@ -1,41 +1,55 @@
 # vim: set sw=4 ts=8 et ic ai:
 
-SET(VRPN_LIBRARY)
-
-FIND_PATH( VRPN_INCLUDE_DIR "vrpn_Configure.h"
-	PATHS
-    $ENV{OSG_ROOT}/include
+set(VRPN_SEARCH_PATHS
+	$ENV{VRPN_ROOT}
     ${LOCAL_VRPN_PATH}
-	/usr/local/include
-	/opt/local/include
+	~/Library/Frameworks
+	/Library/Frameworks
+	/usr/local
+	/usr
+	/sw # Fink
+	/opt/local # DarwinPorts
+	/opt/csw # Blastwave
+	/opt
 	)
 
-FIND_LIBRARY( VRPN_LIBRARY "vrpn"
-    $ENV{OSG_ROOT}/lib
-    ${LOCAL_VRPN_PATH}/pc_win32/Release
-	/usr/local/lib
-	/opt/local/lib
-)
-
-FIND_LIBRARY( VRPN_SERVER_LIBRARY "vrpnserver"
-	$ENV{OSG_ROOT}/lib
-	${LOCAL_VRPN_PATH}/pc_win32/Release
-	/usr/local/lib
-	/opt/local/lib
+find_path( VRPN_INCLUDE_DIR "vrpn_Configure.h"
+	PATHS
+	${VRPN_SEARCH_PATHS}
+	PATH_SUFFIXES 
+	include
 	)
 
-FIND_LIBRARY( VRPN_LIBRARY_DEBUG "vrpn${CMAKE_DEBUG_POSTFIX}"
-    $ENV{OSG_ROOT}/lib
-    ${LOCAL_VRPN_PATH}/pc_win32/Debug
-)
+find_library( VRPN_vrpn_LIBRARY "vrpn"
+    PATHS
+	${VRPN_SEARCH_PATHS}
+	PATH_SUFFIXES lib lib64
+	)
 
-IF( NOT VRPN_LIBRARY_DEBUG )
-    IF( VRPN_LIBRARY )
-        SET( VRPN_LIBRARY_DEBUG VRPN_LIBRARY )
-    ENDIF( VRPN_LIBRARY )
-ENDIF( NOT VRPN_LIBRARY_DEBUG)
-           
-SET( VRPN_FOUND "NO" )
-IF( VRPN_LIBRARY AND VRPN_INCLUDE_DIR )
-    SET( VRPN_FOUND "YES" )
-ENDIF( VRPN_LIBRARY AND VRPN_INCLUDE_DIR )
+find_library( VRPN_quat_LIBRARY "quat"
+    PATHS
+	${VRPN_SEARCH_PATHS}
+	PATH_SUFFIXES lib lib64
+	)
+
+find_library( VRPN_gpsnmea_LIBRARY "gpsnmea"
+    PATHS
+	${VRPN_SEARCH_PATHS}
+	PATH_SUFFIXES lib lib64
+	)
+	
+set(VRPN_INCLUDE_DIRS ${VRPN_INCLUDE_DIR})
+set(VRPN_LIBRARIES
+	${VRPN_vrpn_LIBRARY}
+	${VRPN_quat_LIBRARY}
+	${VRPN_gpsnmea_LIBRARY}
+	)
+
+include(FindPackageHandleStandardArgs)
+
+# handle the QUIETLY and REQUIRED arguments and set UEYE_FOUND to TRUE
+# if all listed variables are TRUE
+find_package_handle_standard_args(VRPN DEFAULT_MSG VRPN_LIBRARIES VRPN_INCLUDE_DIRS)
+
+mark_as_advanced(VRPN_LIBRARIES VRPN_INCLUDE_DIRS)
+
