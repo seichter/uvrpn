@@ -6,7 +6,7 @@ set(uvrpn_srcs
 	uvrpn_tracker.cpp
 	uvrpn_exports.hpp
 	${CMAKE_SOURCE_DIR}/README.md
-	${CMAKE_SOURCE_DIR}/License.md
+	${CMAKE_SOURCE_DIR}/LICENSE.md
 	)
 
 add_library(uvrpn SHARED ${uvrpn_srcs})

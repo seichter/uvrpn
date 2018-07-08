@@ -1,8 +1,29 @@
+
+#include "vrpn_Configure.h"
+#include "vrpn_Analog.h"
+#include "vrpn_Button.h"
+
+#include <memory>
+#include "uvrpn_exports.hpp"
+
+struct vrpn_Analog_Data {
+
+};
+
+struct vrpn_Analog_Wrapper {
+	std::unique_ptr<vrpn_Analog_Remote> _remote;
+
+	void set(const vrpn_ANALOGCB t) {
+	}
+
+	void get() {
+	}
+};
+
 //#include "vrpn_Configure.h"
 //#include "vrpn_Analog.h"
 //#include "vrpn_Tracker.h"
 
-//#include "uvrpn_exports.hpp"
 
 //#include <memory>
 //#include <vector>
@@ -139,14 +160,14 @@
 //}
 
 
-////
-//// Callback
-////
-//void VRPN_CALLBACK VRPN_Remote_Callback(void *userdata, const vrpn_TRACKERCB t)
-//{
-//    VRPN_Remote* r = static_cast<VRPN_Remote*>(userdata);
+//
+// Callback
+//
+void VRPN_CALLBACK VRPN_Remote_Callback(void *userdata, const vrpn_ANALOGCB t)
+{
+//    vrpn_AN* r = static_cast<VRPN_Remote*>(userdata);
 //    if (r) {
 //        r->_hasUpdates = true;
 //        r->set(t);
 //    }
-//}
+}

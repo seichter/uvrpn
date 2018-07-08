@@ -20,12 +20,20 @@ struct VRPN_Remote;
 
 void VRPN_Remote_Callback(void *userdata, const vrpn_TRACKERCB t);
 
+/**
+ * @brief The VRPN_Sensor struct - mirrored in Unity
+ */
 struct VRPN_Sensor {
     vrpn_float64 _position[3];
     vrpn_float64 _rotation[4];
     vrpn_float64 _timestamp;
 };
 
+
+/**
+ * @brief The VRPN_Remote struct
+ *
+ */
 struct VRPN_Remote {
 
     std::unique_ptr<vrpn_Tracker_Remote> _remote;
@@ -95,6 +103,8 @@ struct VRPN_Remote {
 
         // copy time stamp
         sensor._timestamp = t.msg_time.tv_sec + (t.msg_time.tv_usec / 1e-6);
+
+		this->_hasUpdates = true;
     }
 
     size_t sensorCount() const {
@@ -158,8 +168,7 @@ void uvrpn_tracker_destroy(void* tracker) {
 void VRPN_CALLBACK VRPN_Remote_Callback(void *userdata, const vrpn_TRACKERCB t)
 {
     VRPN_Remote* r = static_cast<VRPN_Remote*>(userdata);
-    if (r) {
-        r->_hasUpdates = true;
+	if (r) {
         r->set(t);
     }
 }
