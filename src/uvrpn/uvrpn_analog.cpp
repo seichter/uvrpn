@@ -1,4 +1,11 @@
-
+/**
+ * uvrpn - a minimal wrapper for VRPN in Unity
+ *
+ * Copyright (c) 2013-2018 Hartmut Seichter
+ *
+ * This file is part of uvrpn and licensed under the terms of the MIT License
+ *
+ */
 #include "vrpn_Configure.h"
 #include "vrpn_Analog.h"
 #include "vrpn_Button.h"
@@ -6,19 +13,35 @@
 #include <memory>
 #include "uvrpn_exports.hpp"
 
-struct vrpn_Analog_Data {
-
-};
+void VRPN_Analog_Callback(void *userdata, const vrpn_ANALOGCB info);
 
 struct vrpn_Analog_Wrapper {
+
 	std::unique_ptr<vrpn_Analog_Remote> _remote;
+	vrpn_ANALOGCB _data;
+
+	vrpn_Analog_Wrapper(const char* url)
+		: _remote(new vrpn_Analog_Remote(url))
+	{
+		// register a change hander
+		_remote->register_change_handler(this, VRPN_Analog_Callback);
+	}
 
 	void set(const vrpn_ANALOGCB t) {
+		// copy data
+		_data = t;
 	}
 
 	void get() {
 	}
 };
+
+
+
+void VRPN_Analog_Callback(void *userdata, const vrpn_ANALOGCB info)
+{
+	reinterpret_cast<vrpn_Analog_Wrapper*>(userdata)->set(info);
+}
 
 //#include "vrpn_Configure.h"
 //#include "vrpn_Analog.h"
