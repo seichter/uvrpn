@@ -43,6 +43,10 @@ struct VRPN_Tracker_Remote {
         _remote->register_change_handler(this, VRPN_Remote_Callback);
     }
 
+	~VRPN_Tracker_Remote() {
+		_remote->unregister_change_handler(this, VRPN_Remote_Callback);
+	}
+
     void update() {
         do {
             // reset hasUpdates ...
@@ -66,6 +70,7 @@ struct VRPN_Tracker_Remote {
 
 		auto N = static_cast<size_t>(t.sensor + 1);
 
+
 		// resize internal sensor representation
 		if (N >= _sensors.size()) {
 			_sensors.resize(N);
@@ -84,13 +89,10 @@ struct VRPN_Tracker_Remote {
         return _updateCount;
     }
 
-	~VRPN_Tracker_Remote() {
-        _remote->unregister_change_handler(this, VRPN_Remote_Callback);
-    }
 };
 
 //
-// Wrappers
+// Wrapper
 //
 UVRPN_PINVOKE_EXPORT
 void* uvrpn_tracker_create(const char* url) {
@@ -107,6 +109,13 @@ UVRPN_PINVOKE_EXPORT
 void uvrpn_tracker_get_sensor(void* tracker,VRPN_Tracker_Remote::DataType *s,size_t num) {
 	VRPN_Tracker_Remote* t = static_cast<VRPN_Tracker_Remote*>(tracker);
     t->get(s,num);
+}
+
+UVRPN_PINVOKE_EXPORT
+void uvrpn_tracker_get_sensor_rotation(void* tracker,double *q,size_t num) {
+	auto t = static_cast<VRPN_Tracker_Remote*>(tracker);
+	q = t->_sensors[num].quat;
+	q[3] = 1.0;
 }
 
 UVRPN_PINVOKE_EXPORT

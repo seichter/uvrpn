@@ -43,14 +43,16 @@ public class Tracking : MonoBehaviour {
 		for (int i = 0; i < tracker.GetSensorCount ();i++) {
 
 			// retrieve
-			uvrpn.Sensor s = tracker.GetSensor (i);
+			// uvrpn.Sensor s = tracker.GetSensor (i);
+			var sq = tracker.GetSensorRotation(i);
 
 			// update
 			if (i == useSensorNumber && ! mute) {
 
 				// get actual data
-				Vector3 pos = new Vector3 ((float)s.posX, (float)s.posY, (float)s.posZ) * amplification;
-				Quaternion q = new Quaternion ((float)s.quatX, (float)s.quatY, (float)s.quatZ, (float)s.quatW);
+				Debug.Log(sq);
+				Vector3 pos = new Vector3 (); //(float)s.posX, (float)s.posY, (float)s.posZ) * amplification;
+				Quaternion q = new Quaternion ((float)sq.quatX, (float)sq.quatY, (float)sq.quatZ, (float)sq.quatW);
 
 				// copy translation
 				if (applyTranslation) {

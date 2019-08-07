@@ -18,9 +18,18 @@ namespace uvrpn {
 	[StructLayout(LayoutKind.Sequential)]
 	public struct Sensor
 	{
+		public IntPtr timestruct;
+		public int sensor;
 		public double posX, posY, posZ;
 		public double quatX,quatY,quatZ,quatW;
 
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SensorQuaternion {
+		public double quatX,quatY,quatZ,quatW;
+
+		public override string ToString() => $"{quatX} {quatY} {quatZ} {quatW}";
 	}
 
 	internal class PInvoke {
@@ -46,6 +55,9 @@ namespace uvrpn {
 
 		[DllImport(dll_name)]
 		internal static extern int uvrpn_tracker_get_sensor(IntPtr ptr,ref Sensor s,int num);
+
+		[DllImport(dll_name)]
+		internal static extern int uvrpn_tracker_get_sensor_rotation(IntPtr ptr,ref SensorQuaternion sq,int num);
 
 		[DllImport(dll_name)]
 		internal static extern int uvrpn_tracker_get_update_count(IntPtr ptr);
@@ -85,6 +97,12 @@ namespace uvrpn {
 			Sensor s = new Sensor ();
 			PInvoke.uvrpn_tracker_get_sensor (this.ptr, ref s, num);
 			return s;
+		}
+
+		public SensorQuaternion GetSensorRotation(int num) {
+			SensorQuaternion sq = new SensorQuaternion();
+			PInvoke.uvrpn_tracker_get_sensor_rotation(this.ptr, ref sq, num);
+			return sq;
 		}
 
 		// d'tor
