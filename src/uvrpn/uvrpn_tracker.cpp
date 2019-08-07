@@ -20,8 +20,13 @@ struct VRPN_Tracker_Remote;
 
 void VRPN_Remote_Callback(void *userdata, const vrpn_TRACKERCB t);
 
+//struct VRPN_Tracker_Sensor {
+//    float orientation[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+//    float position[3] = { 0.0f, 0.0f, 0.0f }
+//};
+
 /**
- * @brief The VRPN_Remote struct
+ * @brief The VRPN_Tracker_Remote struct
  *
  */
 struct VRPN_Tracker_Remote {
@@ -32,7 +37,7 @@ struct VRPN_Tracker_Remote {
 
 	bool _hasUpdates  = false;
 
-	std::vector<DataType> _sensors;
+    std::vector<DataType> _sensors;
 
 	size_t _updateCount = 0;
 
@@ -70,7 +75,6 @@ struct VRPN_Tracker_Remote {
 
 		auto N = static_cast<size_t>(t.sensor + 1);
 
-
 		// resize internal sensor representation
 		if (N >= _sensors.size()) {
 			_sensors.resize(N);
@@ -106,16 +110,20 @@ void uvrpn_tracker_update(void* tracker) {
 }
 
 UVRPN_PINVOKE_EXPORT
-void uvrpn_tracker_get_sensor(void* tracker,VRPN_Tracker_Remote::DataType *s,size_t num) {
-	VRPN_Tracker_Remote* t = static_cast<VRPN_Tracker_Remote*>(tracker);
-    t->get(s,num);
+void uvrpn_tracker_get_sensor_rotation(void* tracker,size_t num,double *q) {
+	auto t = static_cast<VRPN_Tracker_Remote*>(tracker);
+    q[0] = t->_sensors[num].quat[0];
+    q[1] = t->_sensors[num].quat[1];
+    q[2] = t->_sensors[num].quat[2];
+    q[3] = t->_sensors[num].quat[3];
 }
 
 UVRPN_PINVOKE_EXPORT
-void uvrpn_tracker_get_sensor_rotation(void* tracker,double *q,size_t num) {
-	auto t = static_cast<VRPN_Tracker_Remote*>(tracker);
-	q = t->_sensors[num].quat;
-	q[3] = 1.0;
+void uvrpn_tracker_get_sensor_position(void* tracker,size_t num,double *v) {
+    auto t = static_cast<VRPN_Tracker_Remote*>(tracker);
+    v[0] = t->_sensors[num].pos[0];
+    v[1] = t->_sensors[num].pos[1];
+    v[2] = t->_sensors[num].pos[2];
 }
 
 UVRPN_PINVOKE_EXPORT

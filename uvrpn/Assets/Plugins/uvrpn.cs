@@ -1,12 +1,16 @@
 ﻿/**
  * uvrpn - a minimal wrapper for VRPN in Unity
  * 
- * Copyright (c) 2013-2017 Hartmut Seichter
+ * Copyright (c) 2013-2019 Hartmut Seichter
  * 
  * This file is part of uvrpn and licensed under the terms of the MIT License
  * 
  */
 
+
+//
+// get packages
+//
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,22 +18,18 @@ using System.Runtime.InteropServices;
 
 namespace uvrpn {
 
-	// the sensor layout is equivalent to the internal structure
-	[StructLayout(LayoutKind.Sequential)]
-	public struct Sensor
-	{
-		public IntPtr timestruct;
-		public int sensor;
-		public double posX, posY, posZ;
-		public double quatX,quatY,quatZ,quatW;
-
-	}
-
 	[StructLayout(LayoutKind.Sequential)]
 	public struct SensorQuaternion {
 		public double quatX,quatY,quatZ,quatW;
 
 		public override string ToString() => $"{quatX} {quatY} {quatZ} {quatW}";
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SensorVector3 {
+		public double posX, posY, posZ;
+
+		public override string ToString() => $"{posX} {posY} {posZ}";
 	}
 
 	internal class PInvoke {
@@ -54,10 +54,10 @@ namespace uvrpn {
 		internal static extern int uvrpn_tracker_get_sensor_count(IntPtr ptr);
 
 		[DllImport(dll_name)]
-		internal static extern int uvrpn_tracker_get_sensor(IntPtr ptr,ref Sensor s,int num);
+		internal static extern int uvrpn_tracker_get_sensor_rotation(IntPtr ptr,int num,ref SensorQuaternion sq);
 
 		[DllImport(dll_name)]
-		internal static extern int uvrpn_tracker_get_sensor_rotation(IntPtr ptr,ref SensorQuaternion sq,int num);
+		internal static extern int uvrpn_tracker_get_sensor_position(IntPtr ptr,int num,ref SensorVector3 sv);
 
 		[DllImport(dll_name)]
 		internal static extern int uvrpn_tracker_get_update_count(IntPtr ptr);
@@ -92,17 +92,16 @@ namespace uvrpn {
 			return PInvoke.uvrpn_tracker_get_update_count (this.ptr);
 		}
 
-		// get sensor data
-		public Sensor GetSensor(int num) {
-			Sensor s = new Sensor ();
-			PInvoke.uvrpn_tracker_get_sensor (this.ptr, ref s, num);
-			return s;
-		}
-
 		public SensorQuaternion GetSensorRotation(int num) {
 			SensorQuaternion sq = new SensorQuaternion();
-			PInvoke.uvrpn_tracker_get_sensor_rotation(this.ptr, ref sq, num);
+			PInvoke.uvrpn_tracker_get_sensor_rotation(this.ptr, num,ref sq);
 			return sq;
+		}
+
+		public SensorVector3 GetSensorPosition(int num) {
+			SensorVector3 sv = new SensorVector3();
+			PInvoke.uvrpn_tracker_get_sensor_position(this.ptr, num,ref sv);
+			return sv;
 		}
 
 		// d'tor
